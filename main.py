@@ -4,25 +4,25 @@ from langdetect import detect
 from datetime import datetime
 import time
 
-# Set scheduled time (9 AM)
-SCHEDULED_TIME = "09:00"
+is_scheduled = False
+if is_scheduled:
+    # Set scheduled time (9 AM)
+    SCHEDULED_TIME = "04:39"
 
+    def check_send_time():
+        current_time = datetime.now().strftime("%H:%M")
+        return current_time == SCHEDULED_TIME
 
-def check_send_time():
-    current_time = datetime.now().strftime("%H:%M")
-    return current_time == SCHEDULED_TIME
-
-
-# Continuously check if it's time to send email
-while True:
-    if check_send_time():
-        print(f"Initiating email send at {datetime.now().strftime('%H:%M')}")
-        break
-    else:
-        print(
-            f"Waiting... Current time: {datetime.now().strftime('%H:%M')}. Scheduled for: {SCHEDULED_TIME}"
-        )
-        time.sleep(60)  # Check every minute
+    # Continuously check if it's time to send email
+    while True:
+        if check_send_time():
+            print(f"Initiating email send at {datetime.now().strftime('%H:%M')}")
+            break
+        else:
+            print(
+                f"Waiting... Current time: {datetime.now().strftime('%H:%M')}. Scheduled for: {SCHEDULED_TIME}"
+            )
+            time.sleep(60)  # Check every minute
 
 
 key = os.getenv("NEWS_KEY")
@@ -70,7 +70,7 @@ msg += "<h2 style='text-align: center;'>Column 2</h2>"
 msg += "</div>"
 msg += "</div>"
 
-num_articles_to_display = 10
+num_articles_to_display = 30
 # Create column content
 left_column = ""
 right_column = ""
@@ -81,7 +81,7 @@ for i, article in enumerate(articles[:num_articles_to_display]):
         <p>{article['description']}</p>
         <p><a href="{article['url']}" style="color: #0066cc; text-decoration: none;">Read more...</a></p>
     """
-    if i < 5:
+    if i < num_articles_to_display // 2:
         left_column += article_html
     else:
         right_column += article_html
