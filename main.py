@@ -2,8 +2,22 @@ import requests
 import send_email, os
 from datetime import datetime, timedelta
 import time
+import argparse
 
-is_scheduled = False
+# Set up argument parser
+parser = argparse.ArgumentParser(description="News API article fetcher")
+parser.add_argument(
+    "--scheduled", type=bool, default=False, help="Enable scheduled sending at 9 AM"
+)
+parser.add_argument("--articles", type=int, help="Number of articles to display")
+
+# Parse arguments
+args = parser.parse_args()
+
+# Update variables based on arguments
+is_scheduled = args.scheduled
+num_articles_to_display = args.articles if args.articles is not None else 50
+
 if is_scheduled:
     # Set scheduled time (9 AM)
     SCHEDULED_TIME = "09:00"
@@ -25,16 +39,22 @@ if is_scheduled:
 
 
 key = os.getenv("NEWS_KEY")
-base_url = "https://newsapi.org/v2/everything"
-num_articles_to_display = 30
 
-# [ ] Create filters for language, source, and blacklisted words
+#  [ ] switch to cli args
+base_url = "https://newsapi.org/v2/everything"
+num_articles_to_display = 50
+
+q1 = "canada OR ontario"
+q2 = "us OR trump OR united states"
+q3 = f"tech OR technology OR AI OR artificial intelligence OR LLM"
+qAll = f"{q1} OR {q2} OR {q3}"
+
 params = {
     "apiKey": key,  # Required: Your News API key.
-    "q": "canada AND ontario AND Trump NOT Elon",  # Keywords or phrases to search for in the article title and body.
-    # "searchIn": "title,description",  # (Optional) Fields to search in. Options: "title", "description", "content".
+    "q": qAll,  # Keywords or phrases to search for in the article title and body.
+    "searchIn": "title,description,content",  # (Optional) Fields to search in. Options: "title", "description", "content".
     # "sources": "bbc-news,the-verge",  # (Optional) Comma-separated list of news source identifiers.
-    # "domains": "bbc.co.uk,techcrunch.com",  # (Optional) Comma-separated list of domains to restrict the search.
+    # "domains": "techcrunch.com, engadget.com",  # (Optional) Comma-separated list of domains to restrict the search.
     # "excludeDomains": "example.com",  # (Optional) Comma-separated list of domains to remove from the results.
     "from": (datetime.now() - timedelta(days=1)).strftime(
         "%Y-%m-%d"
@@ -43,10 +63,25 @@ params = {
         "%Y-%m-%d"
     ),  # (Optional) ISO 8601 date (or date-time) for the newest article allowed.
     "language": "en",  # (Optional) 2-letter ISO-639-1 code of the language to get headlines for.
-    "sortBy": "publishedAt",  # (Optional) Sort order: "relevancy", "popularity", or "publishedAt".
+    "sortBy": "relevancy",  # (Optional) Sort order: "relevancy", "popularity", or "publishedAt".
     "pageSize": num_articles_to_display,  # (Optional) Number of results per page (default is 100, maximum is 100).
     # "page": 1,  # (Optional) Page number for pagination (default is 1).
 }
+
+base_url = "https://newsapi.org/v2/top-headlines"
+num_articles_to_display = 50
+
+# Dictionary for top-headlines endpoint parameters
+params = {
+    "apiKey": key,  # Your API key; required.
+    # Use either 'country' and/or 'category' OR 'sources' (do not combine them).
+    "country": "us",  # The 2-letter ISO 3166-1 country code (e.g., 'us', 'gb', 'de').
+    "category": "general",  # The category of news (options: 'business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology').
+    # "sources": "",  # Comma-separated string of news source identifiers (e.g., 'bbc-news,cnn'). Leave empty if using 'country' or 'category'.
+    # "q": "",  # Keywords or a phrase to search for in the article titles and content.
+    "pageSize": num_articles_to_display,  # The number of results per page (default is 20, maximum is 100).
+}
+
 
 request = requests.get(base_url, params=params)
 content = request.json()
