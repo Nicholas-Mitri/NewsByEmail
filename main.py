@@ -7,7 +7,7 @@ import time
 is_scheduled = False
 if is_scheduled:
     # Set scheduled time (9 AM)
-    SCHEDULED_TIME = "04:39"
+    SCHEDULED_TIME = "09:00"
 
     def check_send_time():
         current_time = datetime.now().strftime("%H:%M")
@@ -35,7 +35,8 @@ request = requests.get(url)
 content = request.json()
 articles = content["articles"]
 
-
+# [ ] Convert to Pandas
+# [ ] Create filters for language, source, and blacklisted words
 # Counter for non-English or invalid articles removed
 popped_count = 0
 i = 0
@@ -98,5 +99,8 @@ msg = msg.replace(
 
 
 send_email.send(
-    receiver="ngmitri04@gmail.com", subject="Daily News Brief", message=msg, MIME="html"
+    receiver="ngmitri04@gmail.com",
+    subject=f"Daily News Brief for {datetime.now().strftime('%a %d, %Y')}",
+    message=msg,
+    MIME="html",
 )
