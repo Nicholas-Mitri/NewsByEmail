@@ -1,7 +1,6 @@
 import requests
 import send_email, os
-from langdetect import detect
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 is_scheduled = False
@@ -26,56 +25,51 @@ if is_scheduled:
 
 
 key = os.getenv("NEWS_KEY")
-url = (
-    "https://newsapi.org/v2/everything?q=tesla&from=2025-01-01&sortBy=publishedAt&apiKey="
-    + str(key)
-)
+base_url = "https://newsapi.org/v2/everything"
+num_articles_to_display = 30
 
-request = requests.get(url)
+# [ ] Create filters for language, source, and blacklisted words
+params = {
+    "apiKey": key,  # Required: Your News API key.
+    "q": "canada AND ontario AND Trump NOT Elon",  # Keywords or phrases to search for in the article title and body.
+    # "searchIn": "title,description",  # (Optional) Fields to search in. Options: "title", "description", "content".
+    # "sources": "bbc-news,the-verge",  # (Optional) Comma-separated list of news source identifiers.
+    # "domains": "bbc.co.uk,techcrunch.com",  # (Optional) Comma-separated list of domains to restrict the search.
+    # "excludeDomains": "example.com",  # (Optional) Comma-separated list of domains to remove from the results.
+    "from": (datetime.now() - timedelta(days=1)).strftime(
+        "%Y-%m-%d"
+    ),  # (Optional) ISO 8601 date (or date-time) for the oldest article allowed.
+    "to": datetime.now().strftime(
+        "%Y-%m-%d"
+    ),  # (Optional) ISO 8601 date (or date-time) for the newest article allowed.
+    "language": "en",  # (Optional) 2-letter ISO-639-1 code of the language to get headlines for.
+    "sortBy": "publishedAt",  # (Optional) Sort order: "relevancy", "popularity", or "publishedAt".
+    "pageSize": num_articles_to_display,  # (Optional) Number of results per page (default is 100, maximum is 100).
+    # "page": 1,  # (Optional) Page number for pagination (default is 1).
+}
+
+request = requests.get(base_url, params=params)
 content = request.json()
 articles = content["articles"]
+num_articles_to_display = len(articles)
 
-# [ ] Convert to Pandas
-# [ ] Create filters for language, source, and blacklisted words
-# Counter for non-English or invalid articles removed
-popped_count = 0
-i = 0
-# Iterate through articles using while loop since we're modifying the list
-while i < len(articles):
-    try:
-        # Check if article title is not in English using langdetect
-        if detect(articles[i]["title"]) != "en":
-            # Remove non-English article and increment counter
-            articles.pop(i)
-            popped_count += 1
-        else:
-            # Only increment index for English articles we keep
-            i += 1
-    except:
-        # Handle any errors (e.g. missing title, detection fails)
-        # Remove problematic article and increment counter
-        articles.pop(i)
-        popped_count += 1
-
-print(f"Removed {popped_count} non-English articles")
+msg = """<html><body>
+<h1 style='text-align: center;'>Daily News Brief</h1>
+<div style='display: flex; justify-content: space-between;'>
+<div style='width: 48%; padding: 20px;'>  <!-- Left column -->
+<h2 style='text-align: center;'>Column 1</h2>
+</div>
+<div style='width: 48%; padding: 20px;'>  <!-- Right column -->
+<h2 style='text-align: center;'>Column 2</h2>
+</div>
+</div>
+</body></html>"""
 
 
-msg = "<html><body>"
-msg += "<h1 style='text-align: center;'>Daily News Brief</h1>"
-msg += "<div style='display: flex; justify-content: space-between;'>"
-msg += "<div style='width: 48%; padding: 20px;'>"  # Left column
-msg += "<h2 style='text-align: center;'>Column 1</h2>"
-msg += "</div>"
-msg += "<div style='width: 48%; padding: 20px;'>"  # Right column
-msg += "<h2 style='text-align: center;'>Column 2</h2>"
-msg += "</div>"
-msg += "</div>"
-
-num_articles_to_display = 30
 # Create column content
 left_column = ""
 right_column = ""
-for i, article in enumerate(articles[:num_articles_to_display]):
+for i, article in enumerate(articles):
     article_html = f"""
         <h2>{article['title']}</h2>
         <img src={article['urlToImage']} style="width: 75%; display: block; margin: 0 auto;">
