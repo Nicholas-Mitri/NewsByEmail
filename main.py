@@ -1,6 +1,28 @@
 import requests
 import send_email, os
 from langdetect import detect
+from datetime import datetime
+import time
+
+# Set scheduled time (9 AM)
+SCHEDULED_TIME = "09:00"
+
+
+def check_send_time():
+    current_time = datetime.now().strftime("%H:%M")
+    return current_time == SCHEDULED_TIME
+
+
+# Continuously check if it's time to send email
+while True:
+    if check_send_time():
+        print(f"Initiating email send at {datetime.now().strftime('%H:%M')}")
+        break
+    else:
+        print(
+            f"Waiting... Current time: {datetime.now().strftime('%H:%M')}. Scheduled for: {SCHEDULED_TIME}"
+        )
+        time.sleep(60)  # Check every minute
 
 
 key = os.getenv("NEWS_KEY")
@@ -13,7 +35,7 @@ request = requests.get(url)
 content = request.json()
 articles = content["articles"]
 
-# [x] TODO filter for english only
+
 # Counter for non-English or invalid articles removed
 popped_count = 0
 i = 0
@@ -37,8 +59,6 @@ while i < len(articles):
 print(f"Removed {popped_count} non-English articles")
 
 
-# [x] TODO add html layout and populate
-# [x] TODO add images
 msg = "<html><body>"
 msg += "<h1 style='text-align: center;'>Daily News Brief</h1>"
 msg += "<div style='display: flex; justify-content: space-between;'>"
@@ -77,9 +97,6 @@ msg = msg.replace(
 )
 
 
-# [x] TODO change formatting to html
 send_email.send(
     receiver="ngmitri04@gmail.com", subject="Daily News Brief", message=msg, MIME="html"
 )
-
-# [ ] TODO add scheduled emails
