@@ -28,6 +28,9 @@ parser.add_argument(
 parser.add_argument(
     "--query", default="", type=str, help="Custom query to limit search."
 )
+parser.add_argument(
+    "--email", type=str, required=True, help="Email address to send digest to"
+)
 
 # Parse command line arguments
 args = parser.parse_args()
@@ -38,6 +41,7 @@ is_scheduled = args.scheduled
 num_articles_to_display = args.articles
 country = args.country
 query = args.query
+usr_email = args.email
 
 # If scheduled mode is enabled, wait until designated send time
 if is_scheduled:
@@ -148,7 +152,7 @@ msg = msg.replace(
 
 # Send email with formatted news content
 send_email.send(
-    receiver="ngmitri04@gmail.com",
+    receiver=usr_email,
     subject=f"Daily News Brief for {datetime.now().strftime('%a %d, %Y')}",
     message=msg,
     MIME="html",

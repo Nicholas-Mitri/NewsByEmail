@@ -48,6 +48,12 @@ python main.py [options]
 
 ### Command Line Arguments
 
+- `--email`: Gmail Email address to send the digest to (required)
+
+  ```bash
+  python main.py --email "user@gmail.com"
+  ```
+
 - `--scheduled`: Enable scheduled sending at 9 AM daily (default: False)
 
   ```bash
@@ -76,11 +82,11 @@ python main.py [options]
 Fetch 15 technology-related articles from the UK:
 
 ```bash
-python main.py --articles 15 --country gb --query "technology"
+python main.py --email "user@gmail.com" --articles 15 --country gb --query "technology"
 ```
 
 Schedule daily digest of 20 US news articles at 9 AM:
 
 ```bash
-python main.py --scheduled True --articles 20 --country us
+python main.py --email "user@gmail.com" --scheduled True --articles 20 --country us
 ```

@@ -39,6 +39,7 @@ def send(receiver="", subject="", message="", MIME="plain", encoding="utf-8") ->
 
 if __name__ == "__main__":
 
-    receiver = "ngmitri04@gmail.com"
+    # Change to your own email
+    receiver = "example@gmail.com"
     message = "hello"
     send(receiver=receiver, subject="test", message=message)
