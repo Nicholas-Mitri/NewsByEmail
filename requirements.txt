@@ -1,10 +1,2 @@
-certifi==2025.1.31
-charset-normalizer==3.4.1
-defusedxml==0.7.1
-fonttools==4.55.8
-idna==3.10
-langdetect==1.0.9
-pillow==11.1.0
+openai==1.61.0
 requests==2.32.3
-six==1.17.0
-urllib3==2.3.0
