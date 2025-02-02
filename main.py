@@ -1,8 +1,8 @@
 import requests
 import send_email, os
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
-import argparse
+import argparse, gpt_fn
 
 # Set up argument parser for command line interface
 parser = argparse.ArgumentParser(description="News API article fetcher")
@@ -10,7 +10,7 @@ parser.add_argument(
     "--scheduled", type=bool, default=False, help="Enable scheduled sending at 9 AM"
 )
 parser.add_argument(
-    "--articles", type=int, default=50, help="Number of articles to display"
+    "--articles", type=int, default=10, help="Number of articles to display"
 )
 parser.add_argument(
     "--country", default="us", type=str, help="Country to search for news."
@@ -57,7 +57,6 @@ key = os.getenv("NEWS_KEY")
 
 # Set up News API endpoint and parameters
 base_url = "https://newsapi.org/v2/top-headlines"
-num_articles_to_display = 50
 
 # Dictionary for top-headlines endpoint parameters
 params = {
@@ -94,12 +93,25 @@ msg = """<html><body>
 # Create column content by splitting articles between left and right columns
 left_column = ""
 right_column = ""
+system_prompt = """
+Your are an AI assistant playing the role of news editor. When given a news article and its title, /
+return a 150 word or less summary that includes the major points from the article that a reader would /
+need to stay up to date.
+"""
+
 for i, article in enumerate(articles):
+    summary = gpt_fn.send_system_and_user_prompts(
+        system_prompt, f"Title:{article['title']}\n\nArticle:\n{article['content']}"
+    )
+    print(f"Summary for article {i+1} is ready...")
+    title, source = article["title"].split(" - ")
+    title = title.title()
     # Create HTML for each article with title, image, description and link
     article_html = f"""
-        <h2>{article['title']}</h2>
-        <img src={article['urlToImage']} style="width: 75%; display: block; margin: 0 auto;">
-        <p>{article['description']}</p>
+        <h2>{title}</h2>
+        <h4>Source: {source}</h4>
+        <img src={article['urlToImage']} style="width: 100%; display: block; margin: 0 auto;">
+        <p>{summary}</p>
         <p><a href="{article['url']}" style="color: #0066cc; text-decoration: none;">Read more...</a></p>
     """
     # Add article to left column if in first half, right column if in second half
