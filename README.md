@@ -54,10 +54,10 @@ python main.py [options]
   python main.py --email "user@gmail.com"
   ```
 
-- `--scheduled`: Enable scheduled sending at 9 AM daily (default: False)
+- `--scheduled`: Enable scheduled sending at 9 AM daily
 
   ```bash
-  python main.py --scheduled True
+  python main.py --scheduled
   ```
 
 - `--articles`: Number of articles to display in the digest (default: 10)

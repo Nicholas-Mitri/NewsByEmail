@@ -17,7 +17,9 @@ logging.info("Script started")
 # Set up argument parser for command line interface
 parser = argparse.ArgumentParser(description="News API article fetcher")
 parser.add_argument(
-    "--scheduled", type=bool, default=False, help="Enable scheduled sending at 9 AM"
+    "--scheduled",
+    action="store_true",  # Change type=bool to action="store_true"
+    help="Enable scheduled sending at 9 AM",
 )
 parser.add_argument(
     "--articles", type=int, default=10, help="Number of articles to display"
