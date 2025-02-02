@@ -1,8 +1,18 @@
 import requests
-import send_email, os
+import send_email, os, sys
 from datetime import datetime
 import time
 import argparse, gpt_fn
+import logging
+
+# Add this near the top of your script
+logging.basicConfig(
+    filename="/tmp/newsfetcher.log",
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+logging.info("Script started")
+
 
 # Set up argument parser for command line interface
 parser = argparse.ArgumentParser(description="News API article fetcher")
@@ -54,7 +64,12 @@ if is_scheduled:
 # Get API key from environment variables
 key = os.getenv("NEWS_KEY")
 
+# After getting the API key
+if not key:
+    logging.error("NEWS_KEY environment variable not found")
+    sys.exit(1)
 
+print(key)
 # Set up News API endpoint and parameters
 base_url = "https://newsapi.org/v2/top-headlines"
 
@@ -98,7 +113,7 @@ Your are an AI assistant playing the role of news editor. When given a news arti
 return a 150 word or less summary that includes the major points from the article that a reader would /
 need to stay up to date.
 """
-
+print(len(articles))
 for i, article in enumerate(articles):
     summary = gpt_fn.send_system_and_user_prompts(
         system_prompt, f"Title:{article['title']}\n\nArticle:\n{article['content']}"
